@@ -1,5 +1,5 @@
 import MettupList from '../components/meetups/MeetupList';
-
+import { useEffect, useState } from 'react';
 const Dummy_Meetups = [
   {
     id: 'm1',
@@ -24,8 +24,18 @@ const Dummy_Meetups = [
   },
 ];
 
-function HomePage() {
-  return <MettupList meetups={Dummy_Meetups} />
+function HomePage(props) {
+  return <MettupList meetups={props.meetups } />
+}
+
+export async function getStaticProps() {
+  //fetch date from an Api
+
+  return {
+    props: {
+      meetups: Dummy_Meetups
+    }
+  };
 }
 
 export default HomePage;
