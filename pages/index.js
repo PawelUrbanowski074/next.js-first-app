@@ -1,40 +1,43 @@
-import MettupList from '../components/meetups/MeetupList';
-import { useEffect, useState } from 'react';
-const Dummy_Meetups = [
-  {
-    id: 'm1',
-    title: 'A first meetup',
-    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/Wawel_hill_%28view_from_W-winter%29%2C_Old_Town%2C_Krak%C3%B3w%2C_Poland.jpg/1024px-Wawel_hill_%28view_from_W-winter%29%2C_Old_Town%2C_Krak%C3%B3w%2C_Poland.jpg',
-    address: 'Some address 6, 12345 Some City',
-    description: 'This is a first meetup!'
-  },
-  {
-    id: 'm2',
-    title: 'A second meetup',
-    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/Wawel_hill_%28view_from_W-winter%29%2C_Old_Town%2C_Krak%C3%B3w%2C_Poland.jpg/1024px-Wawel_hill_%28view_from_W-winter%29%2C_Old_Town%2C_Krak%C3%B3w%2C_Poland.jpg',
-    address: 'Some address 6, 12345 Some City',
-    description: 'This is a first meetup!'
-  },
-  {
-    id: 'm3',
-    title: 'A third meetup',
-    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/Wawel_hill_%28view_from_W-winter%29%2C_Old_Town%2C_Krak%C3%B3w%2C_Poland.jpg/1024px-Wawel_hill_%28view_from_W-winter%29%2C_Old_Town%2C_Krak%C3%B3w%2C_Poland.jpg',
-    address: 'Some address 6, 12345 Some City',
-    description: 'This is a first meetup!'
-  },
-];
+import { Fragment } from "react";
+import Head from "next/head";
+import { MongoClient } from "mongodb";
+import MettupList from "../components/meetups/MeetupList";
 
 function HomePage(props) {
-  return <MettupList meetups={props.meetups } />
+  return (
+    <Fragment>
+      <Head>
+        <title>React Meetups</title>
+        <meta
+          name="description"
+          content="Browse a huge list of highly active React meetups!"
+        />
+      </Head>
+      <MettupList meetups={props.meetups} />
+    </Fragment>
+  );
 }
 
 export async function getStaticProps() {
   //fetch date from an Api
+  const client = await MongoClient.connect(
+    "mongodb+srv://palel00774:admin@cluster0.qeo5jiq.mongodb.net/meetups?retryWrites=true&w=majority"
+  );
+
+  const db = client.db();
+  const meetupsCollection = db.collection("meetups");
+  const meetups = await meetupsCollection.find().toArray();
+  client.close();
 
   return {
     props: {
-      meetups: Dummy_Meetups
-    }
+      meetups: meetups.map((meetup) => ({
+        title: meetup.title,
+        address: meetup.address,
+        image: meetup.image,
+        id: meetup._id.toString(),
+      })),
+    },
   };
 }
 
